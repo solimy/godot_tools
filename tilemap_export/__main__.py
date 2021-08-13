@@ -65,11 +65,12 @@ if __name__=='__main__':
         tileset_id = tilemap.properties['tile_set'].id
         tileset = scn.find_sub_resource(id=tileset_id)
 
-        tiles_collisions = [int(k.split('/')[0]) for k, v in tileset.properties.items() if 'shapes' in k and v]
+        navigable_tiles = [int(k.split('/')[0]) for k, v in tileset.properties.items() if 'navpoly_map' in k and v]
 
         tiles = pd.DataFrame([(tile.x, tile.y, tile.source_id) for tile in tiles], columns=['x', 'y', 'source'])
-        tiles.loc[:, 'walkable'] = True
-        tiles.loc[tiles.source.isin(tiles_collisions), 'walkable'] = False
+        tiles.loc[:, 'navigable'] = 0
+        tiles.loc[tiles.source.isin(navigable_tiles), 'navigable'] = 1
         tiles = tiles.drop(columns=['source'])
 
-        tiles.to_csv(args.output, index=False)
+        tiles.to_csv(f'{args.output}.csv', index=False)
+        tiles[tiles.navigable==1].plot.scatter(x='x', y='y').get_figure().savefig(f'{args.output}.png')
