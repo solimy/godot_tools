@@ -1,2 +1,3 @@
 godot-parser
 pandas
+matplotlib
